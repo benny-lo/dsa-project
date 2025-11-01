@@ -8,6 +8,7 @@
 #include "rax.h"
 #include "utils.h"
 #include "memory_arena.h"
+#include "help_constraints.h"
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN_ARENA_SIZE 1024
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
       if (scanf("%s", input) == 0)
         fprintf(stderr, "error taking input during insertion\n");
       while (strncmp(input, INSERT_END, strlen(INSERT_END) + 1) != 0) {
-        if (compatible(input, info, k)) {
+        if (compatible(input, info)) {
           // if the input is compatible with the constraints, it will be part of
           // the filtered dictionary
           rax_insert(manager, dict, input, k, 0);
@@ -117,7 +118,8 @@ int main(int argc, char *argv[]) {
       guess_counter++;
 
       // generate the constraint and update the constraints
-      gen_constraint(ref, input, constraint, info, k);
+      gen_constraint(ref, input, constraint, k);
+      help_update(info, input, constraint);
       printf("%s\n", constraint);
 
       // update the filtered dictionary and print its size

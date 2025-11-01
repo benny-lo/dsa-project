@@ -45,8 +45,8 @@ run_test() {
         echo -e "${GREEN}✓ Test passed: $test_name${NC} (Time: ${elapsed_s}s, Memory: ${mem_kb}KB)"
     else
         echo -e "${RED}✗ Test failed: $test_name${NC} (Time: ${elapsed_s}s, Memory: ${mem_kb}KB)"
-        echo "Differences:"q
-        diff $tmp_output "$expected_output" >> $tmp_diff
+        echo "Differences:"
+        diff $tmp_output $expected_output > /dev/null
     fi
 
     rm $tmp_output $tmp_stats $tmp_diff

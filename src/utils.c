@@ -6,12 +6,8 @@
 #include "constants.h"
 #include "utils.h"
 
-static size_t char_index(char c);
-static void reset(char const *, size_t *, size_t);
-static size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
-                     size_t game);
 
-static size_t char_index(char c) {
+size_t char_index(char c) {
   int char_index;
 
   if (c == '-') {
@@ -32,11 +28,33 @@ static size_t char_index(char c) {
   return char_index;
 }
 
-static void reset(char const *str, size_t *occur, size_t up) {
-  for (int i = 0; i <= up; i++) {
-    if (str[i] != '\0')
-      occur[char_index(str[i])]--;
+void gen_constraint(char const *ref, char const *guess, char *constraint, size_t k) {
+  size_t ref_occur_not_perfect_match[ALPHABET_SIZE] = {0};
+
+  for (size_t i = 0; i < k; i++) {
+    ref_occur_not_perfect_match[char_index(ref[i])]++;
+
+    if (ref[i] == guess[i]) {
+      constraint[i] = '+';
+      ref_occur_not_perfect_match[char_index(ref[i])]--;
+    } else {
+      constraint[i] = NONE;
+    }
   }
+
+  for (size_t i = 0; i < k; i++) {
+    if (constraint[i] != NONE) continue;
+
+    size_t index = char_index(guess[i]);
+    if (ref_occur_not_perfect_match[index] != 0) {
+      constraint[i] = '|';
+      ref_occur_not_perfect_match[index]--;
+    } else {
+      constraint[i] = '/';
+    }
+  }
+
+  constraint[k] = '\0';
 }
 
 void substring_copy(char *dest, char const *source, size_t a, size_t b) {
@@ -44,185 +62,4 @@ void substring_copy(char *dest, char const *source, size_t a, size_t b) {
     dest[i] = source[a + i];
   }
   dest[b - a] = '\0';
-}
-
-help_t *help_alloc(size_t k) {
-  help_t *info = (help_t *)malloc(sizeof(help_t));
-  info->forced = (char *)malloc((k + 1) * sizeof(char));
-  info->appear = (bool *)malloc(k * ALPHABET_SIZE * sizeof(bool));
-
-  return info;
-}
-
-void help_reset(help_t *info, size_t k) {
-  for (size_t i = 0; i < ALPHABET_SIZE; i++) {
-    info->option[i] = false;
-    info->occur[i] = 0;
-  }
-
-  for (size_t i = 0; i < k; i++) {
-    info->forced[i] = NONE;
-    for (int j = 0; j < ALPHABET_SIZE; j++) {
-      info->appear[i * ALPHABET_SIZE + j] = true;
-    }
-  }
-  info->forced[k] = '\0';
-}
-
-void help_dealloc(help_t *info) {
-  if (info == NULL)
-    return;
-  if (info->forced != NULL)
-    free(info->forced);
-  if (info->appear != NULL)
-    free(info->appear);
-
-  free(info);
-}
-
-void gen_constraint(char const *ref, char const *guess, char *constraint,
-                    help_t *info, size_t k) {
-  int ref_occur[ALPHABET_SIZE] = {0}, guess_occur_notslash[ALPHABET_SIZE] = {0};
-
-  for (size_t i = 0; i < k; i++) {
-    constraint[i] = NONE;
-    ref_occur[char_index(ref[i])]++;
-
-    if (ref[i] == guess[i]) {
-      constraint[i] = '+';
-      info->forced[i] = ref[i];
-      ref_occur[char_index(ref[i])]--;
-      guess_occur_notslash[char_index(ref[i])]++;
-    } else {
-      info->appear[i * ALPHABET_SIZE + char_index(guess[i])] = false;
-    }
-  }
-
-  for (size_t i = 0; i < k; i++) {
-    if (constraint[i] != '+') {
-      if (ref_occur[char_index(guess[i])] != 0) {
-        constraint[i] = '|';
-        guess_occur_notslash[char_index(guess[i])]++;
-        ref_occur[char_index(guess[i])]--;
-
-        if (!info->option[char_index(guess[i])]) {
-          if (guess_occur_notslash[char_index(guess[i])] >
-              info->occur[char_index(guess[i])]) {
-            info->occur[char_index(guess[i])] =
-                guess_occur_notslash[char_index(guess[i])];
-          }
-        }
-      } else {
-        constraint[i] = '/';
-        info->option[char_index(guess[i])] = true;
-        info->occur[char_index(guess[i])] =
-            guess_occur_notslash[char_index(guess[i])];
-      }
-    }
-  }
-
-  constraint[k] = '\0';
-}
-
-bool compatible(char const *str, help_t const *info, size_t k) {
-  size_t str_occur[ALPHABET_SIZE] = {0};
-
-  for (size_t i = 0; i < k; i++) {
-    str_occur[char_index(str[i])]++;
-    if (info->forced[i] != NONE) {
-      if (info->forced[i] != str[i])
-        return false;
-    } else {
-      if (!info->appear[i * ALPHABET_SIZE + char_index(str[i])])
-        return false;
-    }
-  }
-
-  for (size_t i = 0; i < ALPHABET_SIZE; i++) {
-    if (info->option[i]) {
-      if (info->occur[i] != str_occur[i])
-        return false;
-    } else {
-      if (info->occur[i] > str_occur[i])
-        return false;
-    }
-  }
-
-  return true;
-}
-
-size_t update_filter(rax_t *root, help_t *info, size_t game) {
-  size_t str_occur[ALPHABET_SIZE] = {0};
-  return update_filter_aux(root, str_occur, 0, info, game);
-}
-
-size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
-                     size_t game) {
-  if (root->filter == game)
-    return 0;
-
-  size_t piece_idx, ans = 0;
-  rax_t *tmp;
-
-  for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-    // Register occurrence of the character at position piece_idx in root->piece
-    str_occur[char_index(root->piece[piece_idx])]++;
-
-    if (info->forced[curr_idx + piece_idx] != NONE) {
-      if (info->forced[curr_idx + piece_idx] != root->piece[piece_idx]) {
-        root->filter = game;
-        reset(root->piece, str_occur, piece_idx);
-        return 0;
-      }
-    } else {
-      if (!info->appear[(curr_idx + piece_idx) * ALPHABET_SIZE +
-                        char_index(root->piece[piece_idx])]) {
-        root->filter = game;
-        reset(root->piece, str_occur, piece_idx);
-        return 0;
-      }
-    }
-
-    for (size_t i = 0; i < ALPHABET_SIZE; i++) {
-      if (info->option[i] && str_occur[i] > info->occur[i]) {
-        root->filter = game;
-        reset(root->piece, str_occur, piece_idx);
-        return 0;
-      }
-    }
-  }
-
-  tmp = root->child;
-  if (tmp == NULL) {
-    for (size_t i = 0; i < ALPHABET_SIZE; i++) {
-      if (info->option[i]) {
-        if (str_occur[i] != info->occur[i]) {
-          root->filter = game;
-          reset(root->piece, str_occur, piece_idx);
-          return 0;
-        }
-      } else {
-        if (str_occur[i] < info->occur[i]) {
-          root->filter = game;
-          reset(root->piece, str_occur, piece_idx);
-          return 0;
-        }
-      }
-    }
-
-    root->filter = 0;
-    reset(root->piece, str_occur, piece_idx);
-    return 1;
-  } else {
-    while (tmp != NULL) {
-      ans += update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
-      tmp = tmp->sibling;
-    }
-
-    if (ans == 0)
-      root->filter = game;
-
-    reset(root->piece, str_occur, piece_idx);
-    return ans;
-  }
 }
