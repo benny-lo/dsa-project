@@ -47,7 +47,8 @@ bool rax_search(rax_t const *root, char const *str);
  * - size_t game: Game index for filtering (zero not to filter out the inserted
  * string).
  */
-void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str, size_t str_size, size_t game);
+void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str,
+                size_t str_size, size_t game);
 
 /* Prints the strings stored in the radix tree.
  * Parameters:

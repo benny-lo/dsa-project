@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "rax.h"
 #include "memory_arena.h"
+#include "rax.h"
 #include "utils.h"
 
 static rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k);
@@ -13,14 +13,17 @@ static rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k);
 static bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx);
 static rax_t *rax_search_child(rax_t *child, char to_find, rax_t **prev);
 
-static void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root, char const *str, size_t curr_idx,
-                           size_t str_size, size_t game);
+static void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
+                           char const *str, size_t curr_idx, size_t str_size,
+                           size_t game);
 static rax_t *rax_insert_child(rax_t *child, rax_t *to_ins);
 
 static void rax_print_aux(rax_t const *root, char *str, size_t curr_idx,
                           size_t game);
 
-rax_t *rax_alloc(memory_arenas_manager_t *manager) { return rax_alloc_node(manager, 0); }
+rax_t *rax_alloc(memory_arenas_manager_t *manager) {
+  return rax_alloc_node(manager, 0);
+}
 
 // void rax_dealloc(rax_t *root) {
 //   if (root->sibling != NULL)
@@ -35,7 +38,8 @@ bool rax_search(const rax_t *root, const char *str) {
   return rax_search_aux(root, str, 0);
 }
 
-void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str, size_t str_size, size_t game) {
+void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str,
+                size_t str_size, size_t game) {
   rax_insert_aux(manager, root, str, 0, str_size, game);
 }
 
@@ -122,8 +126,9 @@ rax_t *rax_search_child(rax_t *child, char to_find, rax_t **prev) {
   return NULL;
 }
 
-void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root, const char *str, size_t curr_idx,
-                    size_t str_size, size_t game) {
+void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
+                    const char *str, size_t curr_idx, size_t str_size,
+                    size_t game) {
   size_t piece_idx, new_idx, old_sign;
   rax_t *new_node, *new_node_son, *old_child, *child_find, *prev;
 

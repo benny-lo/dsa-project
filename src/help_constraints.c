@@ -1,13 +1,13 @@
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-#include "help_constraints.h"
 #include "constants.h"
+#include "help_constraints.h"
 #include "utils.h"
 
 static void reset(char const *, size_t *, size_t);
-static size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
-                     size_t game);
+static size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
+                                help_t *info, size_t game);
 
 help_t *help_alloc(size_t k) {
   help_t *info = (help_t *)malloc(sizeof(help_t));
@@ -61,13 +61,15 @@ void help_update(help_t *info, char const *guess, char const *constraint) {
     if (constraint[i] == '+') {
       running_notslash[index]++;
       info->forced[i] = guess[i];
-      if (!info->option[index] && running_notslash[index] > info->occur[index]) {
+      if (!info->option[index] &&
+          running_notslash[index] > info->occur[index]) {
         info->occur[index] = running_notslash[index];
       }
     } else if (constraint[i] == '|') {
       info->appear[i * ALPHABET_SIZE + index] = false;
       running_notslash[index]++;
-      if (!info->option[index] && running_notslash[index] > info->occur[index]) {
+      if (!info->option[index] &&
+          running_notslash[index] > info->occur[index]) {
         info->occur[index] = running_notslash[index];
       }
     } else if (constraint[i] == '/') {
@@ -110,8 +112,8 @@ size_t update_filter(rax_t *root, help_t *info, size_t game) {
   return update_filter_aux(root, str_occur, 0, info, game);
 }
 
-size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
-                     size_t game) {
+size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
+                         help_t *info, size_t game) {
   if (root->filter == game)
     return 0;
 
@@ -169,7 +171,8 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t
     return 1;
   } else {
     while (tmp != NULL) {
-      ans += update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
+      ans +=
+          update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
       tmp = tmp->sibling;
     }
 

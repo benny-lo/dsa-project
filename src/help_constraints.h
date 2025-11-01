@@ -66,7 +66,7 @@ void help_update(help_t *info, char const *guess, char const *constraint);
 
 /*
  * Checks if a given string is compatible with the constraints stored in the
- * help_t structure. 
+ * help_t structure.
  * Parameters:
  * - char const *str: String to check for compatibility
  * - help_t const *info: Pointer to the help_t structure containing constraints
