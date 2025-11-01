@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 
       // update the filtered dictionary and print its size
       filtered_size = update_filter(dict, str_occur, 0, info, game);
-      printf("%zu", filtered_size);
+      printf("%zu\n", filtered_size);
 
       // if the maximum number of guesses has been reached, end the game for ko
       if (guess_counter == n) {
