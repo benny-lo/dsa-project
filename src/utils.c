@@ -7,7 +7,7 @@
 #include "utils.h"
 
 static size_t char_index(char c);
-static void reset(char *, int *, size_t);
+static void reset(char *, size_t *, size_t);
 
 static size_t char_index(char c) {
   int char_index;
@@ -30,7 +30,7 @@ static size_t char_index(char c) {
   return char_index;
 }
 
-static void reset(char *str, int *occur, size_t up) {
+static void reset(char *str, size_t *occur, size_t up) {
   for (int i = 0; i <= up; i++) {
     if (str[i] != '\0')
       occur[char_index(str[i])]--;
@@ -149,7 +149,7 @@ bool compatible(const char *str, const help_t *info, size_t k) {
   return true;
 }
 
-size_t update_filter(rax_t *root, int *str_occur, size_t curr_idx, help_t *info,
+size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
                      size_t game) {
   if (root->filter == game)
     return 0;

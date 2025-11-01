@@ -92,13 +92,13 @@ bool compatible(const char *str, const help_t *info, size_t k);
  * Updates the filter of a radix trie node based on the current constraints.
  * Parameters:
  * - rax_t* root: Pointer to the root node of the radix trie
- * - int* str_occur: Array tracking character occurrences in the string
+ * - size_t* str_occur: Array tracking character occurrences in the string
  * - int curr_idx: Current index in the string
  * - help_t* info: Pointer to the help_t structure containing constraints
  * - int game: Game index for filtering
  * Returns: size of the filtered dictionary after the update
  */
-size_t update_filter(rax_t *root, int *str_occur, size_t curr_idx, help_t *info,
+size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
                      size_t game);
 
 #endif

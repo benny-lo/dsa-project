@@ -24,9 +24,7 @@ int main(int argc, char *argv[]) {
   char input[input_size + 1];
 
   // building the radix trie
-  int dict_size = 0,
-      game =
-          0; // we can put the dict size in a management struct for radix trie
+  size_t dict_size = 0,game = 0;
   if (scanf("%s", input) != 1)
     fprintf(stderr, "error taking input while building dict\n");
   while (input[0] != '+') {
@@ -40,10 +38,10 @@ int main(int argc, char *argv[]) {
 
   // data structures to keep track of the constraints
   help_t *info = help_alloc(k);
-  int str_occur[ALPHABET_SIZE] = {0};
+  size_t str_occur[ALPHABET_SIZE] = {0};
   char constraint[k + 1], ref[k + 1], my_str[k + 1];
-  int guess_counter = 0;
-  int filtered_size, n;
+  size_t guess_counter = 0;
+  size_t filtered_size, n;
 
   do {
     if (strncmp(input, NEW_GAME, strlen(NEW_GAME) + 1) == 0) {
@@ -59,7 +57,7 @@ int main(int argc, char *argv[]) {
 
       if (scanf("%s", ref) != 1)
         fprintf(stderr, "error taking ref at beginning of new game\n");
-      if (scanf("%d", &n) != 1)
+      if (scanf("%zu", &n) != 1)
         fprintf(stderr, "error taking n at beginning of new game\n");
 
     } else if (strncmp(input, INSERT_START, strlen(INSERT_START) + 1) == 0) {
@@ -120,7 +118,7 @@ int main(int argc, char *argv[]) {
 
       // update the filtered dictionary and print its size
       filtered_size = update_filter(dict, str_occur, 0, info, game);
-      printf("%d\n", filtered_size);
+      printf("%zu", filtered_size);
 
       // if the maximum number of guesses has been reached, end the game for ko
       if (guess_counter == n) {
