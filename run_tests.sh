@@ -48,6 +48,8 @@ run_test() {
         echo "Differences:"q
         diff $tmp_output "$expected_output" >> $tmp_diff
     fi
+
+    rm $tmp_output $tmp_stats $tmp_diff
 }
 
 # Run slide test
