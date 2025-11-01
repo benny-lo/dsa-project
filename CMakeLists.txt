@@ -12,23 +12,14 @@ set(SOURCES
     src/rax.c
     src/utils.c
     src/constants.c
-    src/memory_pool.c
 )
 
-# Add header files
-set(HEADERS
-    src/rax.h
-    src/utils.h
-    src/constants.h
-    src/memory_pool.h
-)
-
-add_executable(debug ${SOURCES} ${HEADERS})
+add_executable(debug ${SOURCES})
 add_compile_options(-std=c11 -Wall -g -O0 -fsanitize=address -fno-omit-frame-pointer)
 add_link_options(-fsanitize=address)
 target_include_directories(debug PRIVATE src)
 
-add_executable(release ${SOURCES} ${HEADERS})
+add_executable(release ${SOURCES})
 add_compile_options(-std=c11 -O3)
 
 # Set output directory
