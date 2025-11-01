@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
   // initialize empty dictionary
-  rax_t *dict = rax_alloc_node(0);
+  rax_t *dict = rax_alloc();
 
   // read the length of the strings
   size_t k;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "error taking input while building dict\n");
   while (input[0] != '+') {
     // insert the word into the dictionary and increment the dictionary size
-    rax_insert(dict, input, 0, k, game);
+    rax_insert(dict, input, k, game);
     dict_size++;
 
     if (scanf("%s", input) != 1)
@@ -71,12 +71,12 @@ int main(int argc, char *argv[]) {
         if (compatible(input, info, k)) {
           // if the input is compatible with the constraints, it will be part of
           // the filtered dictionary
-          rax_insert(dict, input, 0, k, 0);
+          rax_insert(dict, input, k, 0);
           filtered_size++;
         } else {
           // if the input is not compatible with the constraints, it will not be
           // part of the filtered dictionary
-          rax_insert(dict, input, 0, k, game);
+          rax_insert(dict, input, k, game);
         }
 
         // increment the dictionary size because an element has been inserted in
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
       // print the strings in the dictionary that are part of the filtered
       // dictionary
-      rax_print(dict, my_str, 0, game);
+      rax_print(dict, my_str, game);
 
     } else {
       // processing a guess against the reference word
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
 
       // if the guess is not present in the dictionary, print that it does not
       // exist
-      if (rax_search(dict, input, 0) == 0) {
+      if (rax_search(dict, input) == 0) {
         printf("not_exists\n");
         continue;
       }

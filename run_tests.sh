@@ -2,6 +2,19 @@
 
 EXECUTABLE="$1"
 
+usage() {
+    echo "Usage: $0 <executable>"
+    echo
+    echo "Runs all tests in the 'tests' directory against the given executable."
+    echo "The executable should be located at ./build/bin/<executable>"
+    exit 1
+}
+
+# Check arguments
+if [ $# -ne 1 ] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    usage
+fi
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -17,22 +30,24 @@ run_test() {
     local expected_output="$2"
     local test_name="$3"
 
+    tmp_output=$(mktemp)
+    tmp_stats=$(mktemp)
+    tmp_diff=$(mktemp)
+
     echo "Running test: $test_name"
 
     # Run the program and measure time + memory
-    /usr/bin/time -f "%e %M" ./build/bin/dsa_project_$EXECUTABLE < "$input_file" > output.txt 2> stats.txt
-    read elapsed_s mem_kb < stats.txt
+    /usr/bin/time -f "%e %M" ./build/bin/$EXECUTABLE < "$input_file" > $tmp_output 2> $tmp_stats
+    read elapsed_s mem_kb < $tmp_stats
 
     # Compare output
-    if diff -q output.txt "$expected_output" > /dev/null; then
+    if diff -q $tmp_output "$expected_output" > /dev/null; then
         echo -e "${GREEN}✓ Test passed: $test_name${NC} (Time: ${elapsed_s}s, Memory: ${mem_kb}KB)"
     else
         echo -e "${RED}✗ Test failed: $test_name${NC} (Time: ${elapsed_s}s, Memory: ${mem_kb}KB)"
         echo "Differences:"q
-        diff output.txt "$expected_output" >> diff.txt
+        diff $tmp_output "$expected_output" >> $tmp_diff
     fi
-
-    rm output.txt stats.txt
 }
 
 # Run slide test
@@ -55,11 +70,6 @@ run_test "$TEST_DIR/input_HS010.txt" "$TEST_DIR/input_HS010.output.txt" "Input H
 run_test "$TEST_DIR/input_HS011.txt" "$TEST_DIR/input_HS011.output.txt" "Input HS011" 
 run_test "$TEST_DIR/input_HS012.txt" "$TEST_DIR/input_HS012.output.txt" "Input HS012" 
 run_test "$TEST_DIR/input_HS013.txt" "$TEST_DIR/input_HS013.output.txt" "Input HS013" 
-
-
-
-
-
 
 # Add more tests here as needed
 # run_test "$TEST_DIR/another_test.txt" "$TEST_DIR/another_test.output.txt" "Another Test" 

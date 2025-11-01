@@ -1,13 +1,13 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
-#include "utils.h"
 #include "constants.h"
+#include "utils.h"
 
 static size_t char_index(char c);
-static void reset(char *, int *, size_t); 
+static void reset(char *, int *, size_t);
 
 static size_t char_index(char c) {
   int char_index;
@@ -30,7 +30,7 @@ static size_t char_index(char c) {
   return char_index;
 }
 
-static void reset(char * str, int * occur, size_t up) {
+static void reset(char *str, int *occur, size_t up) {
   for (int i = 0; i <= up; i++) {
     if (str[i] != '\0')
       occur[char_index(str[i])]--;
@@ -78,7 +78,8 @@ void help_dealloc(help_t *info) {
   free(info);
 }
 
-void gen_constraint(const char * ref, const char * guess, char * constraint, help_t *info, size_t k) {
+void gen_constraint(const char *ref, const char *guess, char *constraint,
+                    help_t *info, size_t k) {
   int ref_occur[ALPHABET_SIZE] = {0}, guess_occur_notslash[ALPHABET_SIZE] = {0};
 
   for (size_t i = 0; i < k; i++) {
@@ -148,13 +149,14 @@ bool compatible(const char *str, const help_t *info, size_t k) {
   return true;
 }
 
-size_t update_filter(rax_t *root, int *str_occur, size_t curr_idx, help_t *info, size_t game) {
+size_t update_filter(rax_t *root, int *str_occur, size_t curr_idx, help_t *info,
+                     size_t game) {
   if (root->filter == game)
     return 0;
 
   size_t piece_idx, ans = 0;
   rax_t *tmp;
-  
+
   for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
 
     str_occur[char_index(root->piece[piece_idx])]++;
@@ -206,8 +208,7 @@ size_t update_filter(rax_t *root, int *str_occur, size_t curr_idx, help_t *info,
     return 1;
   } else {
     while (tmp != NULL) {
-      ans += update_filter(tmp, str_occur, curr_idx + piece_idx, info,
-                                  game);
+      ans += update_filter(tmp, str_occur, curr_idx + piece_idx, info, game);
       tmp = tmp->sibling;
     }
 

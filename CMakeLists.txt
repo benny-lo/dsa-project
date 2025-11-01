@@ -23,12 +23,12 @@ set(HEADERS
     src/memory_pool.h
 )
 
-add_executable(dsa_project_debug ${SOURCES} ${HEADERS})
+add_executable(debug ${SOURCES} ${HEADERS})
 add_compile_options(-std=c11 -Wall -g -O0 -fsanitize=address -fno-omit-frame-pointer)
 add_link_options(-fsanitize=address)
-target_include_directories(dsa_project_debug PRIVATE src)
+target_include_directories(debug PRIVATE src)
 
-add_executable(dsa_project_release ${SOURCES} ${HEADERS})
+add_executable(release ${SOURCES} ${HEADERS})
 add_compile_options(-std=c11 -O3)
 
 # Set output directory
