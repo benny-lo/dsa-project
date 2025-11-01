@@ -63,7 +63,7 @@ void help_dealloc(help_t *info);
  * - size_t a: Starting index in the source string
  * - size_t b: Ending index in the source string
  */
-void substring_copy(char *dest, const char *source, size_t a, size_t b);
+void substring_copy(char *dest, char const *source, size_t a, size_t b);
 
 /*
  * Generates constraints based on the reference and guess strings.
@@ -75,7 +75,7 @@ void substring_copy(char *dest, const char *source, size_t a, size_t b);
  * - help_t* info: Pointer to the help_t structure to update
  * - int k: Length of the strings
  */
-void gen_constraint(const char *ref, const char *guess, char *constraint,
+void gen_constraint(char const *ref, char const *guess, char *constraint,
                     help_t *info, size_t k);
 
 /*
@@ -86,7 +86,7 @@ void gen_constraint(const char *ref, const char *guess, char *constraint,
  * - size_t k: Length of the string
  * Returns: true if the string is compatible, false otherwise
  */
-bool compatible(const char *str, const help_t *info, size_t k);
+bool compatible(char const *str, help_t const *info, size_t k);
 
 /*
  * Updates the filter of a radix tree node based on the current constraints.

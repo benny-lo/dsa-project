@@ -7,7 +7,7 @@
 #include "utils.h"
 
 static size_t char_index(char c);
-static void reset(char *, size_t *, size_t);
+static void reset(char const *, size_t *, size_t);
 
 static size_t char_index(char c) {
   int char_index;
@@ -30,14 +30,14 @@ static size_t char_index(char c) {
   return char_index;
 }
 
-static void reset(char *str, size_t *occur, size_t up) {
+static void reset(char const *str, size_t *occur, size_t up) {
   for (int i = 0; i <= up; i++) {
     if (str[i] != '\0')
       occur[char_index(str[i])]--;
   }
 }
 
-void substring_copy(char *dest, const char *source, size_t a, size_t b) {
+void substring_copy(char *dest, char const *source, size_t a, size_t b) {
   for (int i = 0; i < b - a; i++) {
     dest[i] = source[a + i];
   }
@@ -78,7 +78,7 @@ void help_dealloc(help_t *info) {
   free(info);
 }
 
-void gen_constraint(const char *ref, const char *guess, char *constraint,
+void gen_constraint(char const *ref, char const *guess, char *constraint,
                     help_t *info, size_t k) {
   int ref_occur[ALPHABET_SIZE] = {0}, guess_occur_notslash[ALPHABET_SIZE] = {0};
 
@@ -122,7 +122,7 @@ void gen_constraint(const char *ref, const char *guess, char *constraint,
   constraint[k] = '\0';
 }
 
-bool compatible(const char *str, const help_t *info, size_t k) {
+bool compatible(char const *str, help_t const *info, size_t k) {
   size_t str_occur[ALPHABET_SIZE] = {0};
 
   for (size_t i = 0; i < k; i++) {
