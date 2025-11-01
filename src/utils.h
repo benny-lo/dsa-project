@@ -89,9 +89,9 @@ void gen_constraint(const char *ref, const char *guess, char *constraint,
 bool compatible(const char *str, const help_t *info, size_t k);
 
 /*
- * Updates the filter of a radix trie node based on the current constraints.
+ * Updates the filter of a radix tree node based on the current constraints.
  * Parameters:
- * - rax_t* root: Pointer to the root node of the radix trie
+ * - rax_t* root: Pointer to the root node of the radix tree
  * - size_t* str_occur: Array tracking character occurrences in the string
  * - int curr_idx: Current index in the string
  * - help_t* info: Pointer to the help_t structure containing constraints
