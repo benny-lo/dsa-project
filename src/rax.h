@@ -25,12 +25,6 @@ typedef struct rax_t {
  */
 rax_t *rax_alloc(memory_arenas_manager_t *manager);
 
-/* Recursively deallocates an entire radix tree.
- * Parameters:
- * - rax_t* root: Root node of the tree to deallocate.
- */
-// void rax_dealloc(rax_t *root);
-
 /* Searches for a string in the radix tree, ignoring the filtered out strings.
  * Parameters:
  * - rax_t* root: Root node of the tree.

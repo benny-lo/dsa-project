@@ -25,15 +25,6 @@ rax_t *rax_alloc(memory_arenas_manager_t *manager) {
   return rax_alloc_node(manager, 0);
 }
 
-// void rax_dealloc(rax_t *root) {
-//   if (root->sibling != NULL)
-//     rax_dealloc(root->sibling);
-//   if (root->child != NULL)
-//     rax_dealloc(root->child);
-
-//   rax_dealloc_node(root);
-// }
-
 bool rax_search(const rax_t *root, const char *str) {
   return rax_search_aux(root, str, 0);
 }
