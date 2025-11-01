@@ -8,6 +8,8 @@
 
 static size_t char_index(char c);
 static void reset(char const *, size_t *, size_t);
+static size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
+                     size_t game);
 
 static size_t char_index(char c) {
   int char_index;
@@ -59,7 +61,7 @@ void help_reset(help_t *info, size_t k) {
   }
 
   for (size_t i = 0; i < k; i++) {
-    info->forced[i] = FOO;
+    info->forced[i] = NONE;
     for (int j = 0; j < ALPHABET_SIZE; j++) {
       info->appear[i * ALPHABET_SIZE + j] = true;
     }
@@ -83,7 +85,7 @@ void gen_constraint(char const *ref, char const *guess, char *constraint,
   int ref_occur[ALPHABET_SIZE] = {0}, guess_occur_notslash[ALPHABET_SIZE] = {0};
 
   for (size_t i = 0; i < k; i++) {
-    constraint[i] = FOO;
+    constraint[i] = NONE;
     ref_occur[char_index(ref[i])]++;
 
     if (ref[i] == guess[i]) {
@@ -127,7 +129,7 @@ bool compatible(char const *str, help_t const *info, size_t k) {
 
   for (size_t i = 0; i < k; i++) {
     str_occur[char_index(str[i])]++;
-    if (info->forced[i] != FOO) {
+    if (info->forced[i] != NONE) {
       if (info->forced[i] != str[i])
         return false;
     } else {
@@ -149,7 +151,12 @@ bool compatible(char const *str, help_t const *info, size_t k) {
   return true;
 }
 
-size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
+size_t update_filter(rax_t *root, help_t *info, size_t game) {
+  size_t str_occur[ALPHABET_SIZE] = {0};
+  return update_filter_aux(root, str_occur, 0, info, game);
+}
+
+size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
                      size_t game) {
   if (root->filter == game)
     return 0;
@@ -158,10 +165,10 @@ size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *in
   rax_t *tmp;
 
   for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-
+    // Register occurrence of the character at position piece_idx in root->piece
     str_occur[char_index(root->piece[piece_idx])]++;
 
-    if (info->forced[curr_idx + piece_idx] != FOO) {
+    if (info->forced[curr_idx + piece_idx] != NONE) {
       if (info->forced[curr_idx + piece_idx] != root->piece[piece_idx]) {
         root->filter = game;
         reset(root->piece, str_occur, piece_idx);
@@ -208,7 +215,7 @@ size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *in
     return 1;
   } else {
     while (tmp != NULL) {
-      ans += update_filter(tmp, str_occur, curr_idx + piece_idx, info, game);
+      ans += update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
       tmp = tmp->sibling;
     }
 

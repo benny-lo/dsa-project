@@ -4,7 +4,7 @@
 #define ALPHABET_SIZE 64
 
 extern const int MAX_KEYWORD;
-extern const char FOO;
+extern const char NONE;
 
 extern const char *NEW_GAME;
 extern const char *INSERT_START;

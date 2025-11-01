@@ -80,7 +80,8 @@ void gen_constraint(char const *ref, char const *guess, char *constraint,
 
 /*
  * Checks if a given string is compatible with the constraints stored in the
- * help_t structure. Parameters:
+ * help_t structure. 
+ * Parameters:
  * - const char* str: String to check for compatibility
  * - const help_t* info: Pointer to the help_t structure containing constraints
  * - size_t k: Length of the string
@@ -92,13 +93,11 @@ bool compatible(char const *str, help_t const *info, size_t k);
  * Updates the filter of a radix tree node based on the current constraints.
  * Parameters:
  * - rax_t* root: Pointer to the root node of the radix tree
- * - size_t* str_occur: Array tracking character occurrences in the string
- * - int curr_idx: Current index in the string
+ * - size_t curr_idx: Current index in the string
  * - help_t* info: Pointer to the help_t structure containing constraints
  * - int game: Game index for filtering
  * Returns: size of the filtered dictionary after the update
  */
-size_t update_filter(rax_t *root, size_t *str_occur, size_t curr_idx, help_t *info,
-                     size_t game);
+size_t update_filter(rax_t *root, help_t *info, size_t game);
 
 #endif

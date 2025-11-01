@@ -43,7 +43,6 @@ int main(int argc, char *argv[]) {
 
   // data structures to keep track of the constraints
   help_t *info = help_alloc(k);
-  size_t str_occur[ALPHABET_SIZE] = {0};
   char constraint[k + 1], ref[k + 1], my_str[k + 1];
   size_t guess_counter = 0;
   size_t filtered_size, n;
@@ -122,7 +121,7 @@ int main(int argc, char *argv[]) {
       printf("%s\n", constraint);
 
       // update the filtered dictionary and print its size
-      filtered_size = update_filter(dict, str_occur, 0, info, game);
+      filtered_size = update_filter(dict, info, game);
       printf("%zu\n", filtered_size);
 
       // if the maximum number of guesses has been reached, end the game for ko
