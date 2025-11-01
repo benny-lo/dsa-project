@@ -16,12 +16,17 @@ set(SOURCES
 )
 
 add_executable(debug ${SOURCES})
-add_compile_options(-std=c11 -Wall -g -O0 -fsanitize=address -fno-omit-frame-pointer)
-add_link_options(-fsanitize=address)
-target_include_directories(debug PRIVATE src)
+target_compile_options(debug PRIVATE 
+    -std=c11 -Wall -g -O0 -fsanitize=address -fno-omit-frame-pointer
+)
+target_link_options(debug PRIVATE
+    -fsanitize=address
+)
 
 add_executable(release ${SOURCES})
-add_compile_options(-std=c11 -O2)
+target_compile_options(release PRIVATE
+    -std=c11 -O2
+)
 
 # Set output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin) 

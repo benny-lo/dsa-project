@@ -37,7 +37,7 @@ run_test() {
     echo "Running test: $test_name"
 
     # Run the program and measure time + memory
-    /usr/bin/time -f "%e %M" ./build/bin/$EXECUTABLE < "$input_file" > $tmp_output 2> $tmp_stats
+    /usr/bin/time -f "%e %M" -o "$tmp_stats" ./build/bin/$EXECUTABLE < "$input_file" > "$tmp_output"
     read elapsed_s mem_kb < $tmp_stats
 
     # Compare output
