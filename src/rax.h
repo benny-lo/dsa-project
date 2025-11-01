@@ -1,6 +1,7 @@
 #ifndef RAX_H
 #define RAX_H
 
+#include "memory_arena.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -22,13 +23,13 @@ typedef struct rax_t {
 /* Allocates a new empty radix tree. Ownership is transferred to the caller.
  * Returns: Pointer to the root of the newly allocated radix tree.
  */
-rax_t *rax_alloc();
+rax_t *rax_alloc(memory_arenas_manager_t *manager);
 
 /* Recursively deallocates an entire radix tree.
  * Parameters:
  * - rax_t* root: Root node of the tree to deallocate.
  */
-void rax_dealloc(rax_t *root);
+// void rax_dealloc(rax_t *root);
 
 /* Searches for a string in the radix tree, ignoring the filtered out strings.
  * Parameters:
@@ -46,7 +47,7 @@ bool rax_search(rax_t const *root, char const *str);
  * - size_t game: Game index for filtering (zero not to filter out the inserted
  * string).
  */
-void rax_insert(rax_t *root, char const *str, size_t str_size, size_t game);
+void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str, size_t str_size, size_t game);
 
 /* Prints the strings stored in the radix tree.
  * Parameters:

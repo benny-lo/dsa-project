@@ -2,6 +2,22 @@
 
 #include "memory_arena.h"
 
+typedef struct memory_arena_t {
+    void *start_ptr;
+    void *current_ptr;
+    void *end_ptr;
+} memory_arena_t;
+
+typedef struct memory_arenas_list_node_t {
+    memory_arena_t arena;
+    struct memory_arenas_list_node_t *next;
+} memory_arenas_list_node_t;
+
+typedef struct memory_arenas_manager_t {
+    memory_arenas_list_node_t *arenas_list;
+    size_t arena_size;
+} memory_arenas_manager_t;
+
 static memory_arenas_list_node_t *allocate_arenas_list_node(size_t arena_size);
 static void deallocate_arenas_list_node(memory_arenas_list_node_t *node);
 
