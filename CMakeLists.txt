@@ -12,6 +12,7 @@ set(SOURCES
     src/rax.c
     src/utils.c
     src/constants.c
+    src/memory_arena.c
 )
 
 add_executable(debug ${SOURCES})
@@ -20,7 +21,7 @@ add_link_options(-fsanitize=address)
 target_include_directories(debug PRIVATE src)
 
 add_executable(release ${SOURCES})
-add_compile_options(-std=c11 -O3)
+add_compile_options(-std=c11 -O2)
 
 # Set output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin) 
