@@ -1,10 +1,6 @@
 #include "utils.h"
 #include "constants.h"
 
-static const char PERFECT_MATCH = '+';
-static const char PARTIAL_MATCH = '|';
-static const char NO_MATCH = '/';
-
 void gen_constraint(char const *ref, char const *guess, char *feedback,
                     size_t k) {
   size_t ref_occur_not_perfect_match[ALPHABET_SIZE] = {0};

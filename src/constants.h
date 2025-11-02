@@ -5,6 +5,10 @@
 
 extern const int MAX_KEYWORD;
 
+extern const char PERFECT_MATCH;
+extern const char PARTIAL_MATCH;
+extern const char NO_MATCH;
+
 extern const char *NEW_GAME;
 extern const char *INSERT_START;
 extern const char *INSERT_END;
