@@ -8,10 +8,17 @@
 #include "utils.h"
 
 static rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k);
-// static void rax_dealloc_node(rax_t *node_del);
 
 static bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx);
-static rax_t *rax_search_child(rax_t *child, char to_find, rax_t **prev);
+/*
+ * Searches for a node in a list of siblings whose piece starts with the given
+ * character. Parameters:
+ * - rax_t *child: Pointer to the first node, all of its siblings will be
+ * considered
+ * - char to_find: Character that node->piece[0] has to match
+ * Returns: Pointer to the found node, or NULL if no such node exists
+ */
+static rax_t *rax_search_child(rax_t *child, char to_find);
 
 static void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
                            char const *str, size_t curr_idx, size_t str_size,
@@ -25,7 +32,7 @@ rax_t *rax_alloc(memory_arenas_manager_t *manager) {
   return rax_alloc_node(manager, 0);
 }
 
-bool rax_search(const rax_t *root, const char *str) {
+bool rax_search(rax_t const *root, char const *str) {
   return rax_search_aux(root, str, 0);
 }
 
@@ -40,11 +47,12 @@ void rax_print(rax_t const *root, char *str, size_t game) {
 
 size_t rax_size(rax_t const *root, size_t game) {
   if (root->filter == game)
-    return 0;
+    return 0; // node and subtree filtered out
 
   size_t ans = 0;
   rax_t *tmp;
 
+  // Recurring on first child and siblings
   tmp = root->child;
   if (tmp == NULL)
     return 1;
@@ -59,74 +67,59 @@ size_t rax_size(rax_t const *root, size_t game) {
 rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k) {
   rax_t *new_node = (rax_t *)alloc(manager, sizeof(rax_t) + k + 1);
 
-  // If the allocation is successful, initialize the node's fields
-  if (new_node != NULL) {
-    new_node->filter = 0;
-    new_node->sibling = NULL;
-    new_node->child = NULL;
-    new_node->piece[k] = '\0';
-  } else {
-    fprintf(stderr, "failed allocation of new_node in rax_alloc_node\n");
-  }
+  new_node->filter = 0;
+  new_node->sibling = NULL;
+  new_node->child = NULL;
+  new_node->piece[k] = '\0';
 
   return new_node;
 }
 
-// void rax_dealloc_node(rax_t *node_del) {
-//   // If the node is not NULL, free the memory allocated for it
-//   if (node_del == NULL)
-//     return;
-//   free(node_del);
-// }
-
-bool rax_search_aux(const rax_t *root, const char *str, size_t curr_idx) {
+bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx) {
   size_t piece_idx, new_idx;
   rax_t *good_child;
 
-  // If the string does not partially match the piece of the current node,
-  // return false
+  // if str[curr_idx:curr_idx + len(root->piece)] != root->piece, return false
   for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
     if (root->piece[piece_idx] != str[curr_idx + piece_idx])
       return false;
   }
 
-  // If the string is fully matched, return true
+  // if the string is fully matched, return true
   new_idx = curr_idx + piece_idx;
   if (str[new_idx] == '\0')
     return true;
 
-  // The string is only partially matched, so we need to search for the next
-  // node to continue with in the linked list of children.
-  good_child = rax_search_child(root->child, str[new_idx], NULL);
+  // the string is only partially matched, so we need to search for the next
+  // node to continue within the linked list of children (following the sibling
+  // pointers)
+  good_child = rax_search_child(root->child, str[new_idx]);
   if (good_child == NULL)
     return false;
   return rax_search_aux(good_child, str, new_idx);
 }
 
-rax_t *rax_search_child(rax_t *child, char to_find, rax_t **prev) {
-  if (prev != NULL)
-    *prev = NULL;
+rax_t *rax_search_child(rax_t *child, char to_find) {
   while (child != NULL) {
     if (child->piece[0] == to_find)
       return child;
-    if (prev != NULL)
-      *prev = child;
+
     child = child->sibling;
   }
 
+  // no node found
   return NULL;
 }
 
 void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
-                    const char *str, size_t curr_idx, size_t str_size,
+                    char const *str, size_t curr_idx, size_t str_size,
                     size_t game) {
-  size_t piece_idx, new_idx, old_sign;
-  rax_t *new_node, *new_node_son, *old_child, *child_find, *prev;
+  size_t piece_idx, new_idx, old_filter;
+  rax_t *new_node, *new_node_son, *old_child, *child_find;
 
-  old_sign = root->filter;
-  if (game == 0) {
+  old_filter = root->filter;
+  if (game == 0)
     root->filter = 0;
-  }
 
   size_t piece_size = strlen(root->piece);
 
@@ -147,9 +140,7 @@ void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
 
       // set the filters
       new_node->filter = game;
-      new_node_son->filter = old_sign;
-      if (game == 0)
-        root->filter = 0;
+      new_node_son->filter = old_filter;
 
       // setting the children of root
       root->child = rax_insert_child(root->child, new_node);
@@ -162,12 +153,10 @@ void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
 
   new_idx = curr_idx + piece_size;
 
-  // se si entra qui vuol dire che la stringa da inserire è già presente
   if (new_idx == str_size)
-    return;
+    return; // the string is already present in the tree
 
-  child_find = rax_search_child(root->child, str[new_idx], &prev);
-
+  child_find = rax_search_child(root->child, str[new_idx]);
   if (child_find == NULL) {
     // create the new node and fill it with its substring
     new_node = rax_alloc_node(manager, str_size - new_idx);
