@@ -50,7 +50,8 @@ void help_update(help_t *info, char const *guess, char const *feedback) {
   // Occurrences per-char of the characters in guess not corresponding to a '/'
   size_t total_notslash[ALPHABET_SIZE] = {0};
 
-  // Running occurrences per-char of the characters in guess not corresponding to a '/'
+  // Running occurrences per-char of the characters in guess not corresponding
+  // to a '/'
   size_t running_notslash[ALPHABET_SIZE] = {0};
 
   // count total non-'/' occurrences per letter
@@ -94,10 +95,10 @@ void help_update(help_t *info, char const *guess, char const *feedback) {
       // guess[i] cannot appear at position i
       info->can_appear[i * ALPHABET_SIZE + c_index] = false;
 
-      // set the counter of guess[i] to be exact and equal to total_notslash[c_index],
-      // since having an instance of guess[i] matched to `NO_MATCH` in feedback means
-      // that total_notslash[c_index] is the exact number of occurrences of guess[i] in
-      // the hidden string
+      // set the counter of guess[i] to be exact and equal to
+      // total_notslash[c_index], since having an instance of guess[i] matched
+      // to `NO_MATCH` in feedback means that total_notslash[c_index] is the
+      // exact number of occurrences of guess[i] in the hidden string
       info->counters[c_index].flag = true;
       info->counters[c_index].val = total_notslash[c_index];
     }
@@ -134,7 +135,7 @@ size_t update_filter(rax_t *root, help_t *info, size_t game) {
 
 size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
                          help_t *info, size_t game) {
-  // node and subtree filtered out for this `game` by the previous 
+  // node and subtree filtered out for this `game` by the previous
   // sequence of guesses and corresponding feedbacks
   if (root->filter == game)
     return 0;
@@ -187,7 +188,8 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
       tmp = tmp->sibling;
     }
 
-    // if no compatible strings found in subtree rooted at `root`, prune the root as well
+    // if no compatible strings found in subtree rooted at `root`, prune the
+    // root as well
     if (ans == 0)
       root->filter = game;
 

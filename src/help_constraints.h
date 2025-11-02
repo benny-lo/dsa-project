@@ -7,10 +7,10 @@
 #include "rax.h"
 
 /*
- * Structure to keep track of the information about the hidden string accumulated
- * through the user guesses so far. Essentially, it represents the strings in the dictionary
- * that a perfectly rational user should not guess given the previous guesses and 
- * corresponding feedbacks.
+ * Structure to keep track of the information about the hidden string
+ * accumulated through the user guesses so far. Essentially, it represents the
+ * strings in the dictionary that a perfectly rational user should not guess
+ * given the previous guesses and corresponding feedbacks.
  */
 typedef struct help_t help_t;
 
@@ -23,8 +23,8 @@ typedef struct help_t help_t;
 help_t *help_alloc(size_t k);
 
 /*
- * Resets the help_t structure to its initial state (all strings in the dictionary).
- * Parameters:
+ * Resets the help_t structure to its initial state (all strings in the
+ * dictionary). Parameters:
  * - help_t *info: Pointer to the help_t structure to reset
  * - size_t k: Size of the string in the dictionary
  */
@@ -49,8 +49,8 @@ void help_update(help_t *info, char const *guess, char const *feedback);
 
 /*
  * Checks if a given string is can be guessed by a perfectly rational user
- * given the information acculamated so far through guesses and correspoding feedbacks. 
- * Parameters:
+ * given the information acculamated so far through guesses and correspoding
+ * feedbacks. Parameters:
  * - char const *str: String to check for compatibility (null-terminated)
  * - help_t const *info: Pointer to the help_t structure containing constraints
  * Returns: true if the string is compatible, false otherwise
@@ -59,8 +59,8 @@ bool compatible(char const *str, help_t const *info);
 
 /*
  * Counts the number of strings in the radix tree (the dictionary) that are
- * compatible with the information encapsulated by`info`. Moreover, it updates 
- * the filter fields of the nodes corresponding to branches of the radix tree 
+ * compatible with the information encapsulated by`info`. Moreover, it updates
+ * the filter fields of the nodes corresponding to branches of the radix tree
  * that can be pruned away.
  * Parameters:
  * - rax_t *root: Pointer to the root node of the radix tree
