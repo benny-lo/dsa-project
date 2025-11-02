@@ -6,31 +6,7 @@
 #include "constants.h"
 #include "rax.h"
 
-/*
- * Actual constraint bookkeeping:
- * for every position, the character forced in that position ('+');
- * for every character, lower bound on the number of occurences in the string
- * ('+' and '|'); for every character, the set of positions where it cannot
- * appear ('|' and '/').
- */
-
-/*
- * Structure to store constraints and filtering information for word matching.
- *
- * This structure maintains information about character occurrences and
- * constraints used to filter valid words in the dictionary.
- *
- * occur:   Array tracking required minimum occurrences for each character
- * option:  Array indicating if a character must match exact occurrence count
- * forced:  Array storing required characters at specific positions
- * appear:  Matrix storing allowed characters at each position
- */
-typedef struct help_t {
-  size_t occur[ALPHABET_SIZE];
-  bool option[ALPHABET_SIZE];
-  char *forced;
-  bool *appear;
-} help_t;
+typedef struct help_t help_t;
 
 /*
  * Allocates a new help_t structure for managing constraints.
