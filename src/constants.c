@@ -1,7 +1,6 @@
 #include "constants.h"
 
 const int MAX_KEYWORD = 32;
-const char NONE = '.';
 
 const char *NEW_GAME = "+nuova_partita";
 const char *INSERT_START = "+inserisci_inizio";
