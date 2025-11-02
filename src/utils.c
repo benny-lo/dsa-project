@@ -17,6 +17,8 @@ void gen_constraint(char const *ref, char const *guess, char *feedback,
     if (ref[i] == guess[i]) {
       feedback[i] = PERFECT_MATCH;
       ref_occur_not_perfect_match[char_index(ref[i])]--;
+    } else {
+      feedback[i] = '\0'; // not the actual value, just a filler != PERFECT_MATCH
     }
   }
 
