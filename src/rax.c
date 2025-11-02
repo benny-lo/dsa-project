@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "memory_arena.h"
+#include "memory_allocator.h"
 #include "rax.h"
 #include "utils.h"
 
-static rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k);
+static rax_t *rax_alloc_node(memory_allocator_t *allocator, size_t k);
 
 static bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx);
 /*
@@ -20,7 +20,7 @@ static bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx);
  */
 static rax_t *rax_search_child(rax_t *child, char to_find);
 
-static void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
+static void rax_insert_aux(memory_allocator_t *allocator, rax_t *root,
                            char const *str, size_t curr_idx, size_t str_size,
                            size_t game);
 static rax_t *rax_insert_child(rax_t *child, rax_t *to_ins);
@@ -28,17 +28,17 @@ static rax_t *rax_insert_child(rax_t *child, rax_t *to_ins);
 static void rax_print_aux(rax_t const *root, char *str, size_t curr_idx,
                           size_t game);
 
-rax_t *rax_alloc(memory_arenas_manager_t *manager) {
-  return rax_alloc_node(manager, 0);
+rax_t *rax_alloc(memory_allocator_t *allocator) {
+  return rax_alloc_node(allocator, 0);
 }
 
 bool rax_search(rax_t const *root, char const *str) {
   return rax_search_aux(root, str, 0);
 }
 
-void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str,
+void rax_insert(memory_allocator_t *allocator, rax_t *root, char const *str,
                 size_t str_size, size_t game) {
-  rax_insert_aux(manager, root, str, 0, str_size, game);
+  rax_insert_aux(allocator, root, str, 0, str_size, game);
 }
 
 void rax_print(rax_t const *root, char *str, size_t game) {
@@ -64,8 +64,8 @@ size_t rax_size(rax_t const *root, size_t game) {
   return ans;
 }
 
-rax_t *rax_alloc_node(memory_arenas_manager_t *manager, size_t k) {
-  rax_t *new_node = (rax_t *)alloc(manager, sizeof(rax_t) + k + 1);
+rax_t *rax_alloc_node(memory_allocator_t *allocator, size_t k) {
+  rax_t *new_node = (rax_t *)allocate(allocator, sizeof(rax_t) + k + 1);
 
   new_node->filter = 0;
   new_node->sibling = NULL;
@@ -111,9 +111,8 @@ rax_t *rax_search_child(rax_t *child, char to_find) {
   return NULL;
 }
 
-void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
-                    char const *str, size_t curr_idx, size_t str_size,
-                    size_t game) {
+void rax_insert_aux(memory_allocator_t *allocator, rax_t *root, char const *str,
+                    size_t curr_idx, size_t str_size, size_t game) {
   size_t piece_idx, new_idx, old_filter;
   rax_t *new_node, *new_node_son, *old_child, *child_find;
 
@@ -126,8 +125,8 @@ void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
   for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
     if (root->piece[piece_idx] != str[curr_idx + piece_idx]) {
       // allocating the new nodes
-      new_node = rax_alloc_node(manager, str_size - piece_idx - curr_idx);
-      new_node_son = rax_alloc_node(manager, piece_size - piece_idx);
+      new_node = rax_alloc_node(allocator, str_size - piece_idx - curr_idx);
+      new_node_son = rax_alloc_node(allocator, piece_size - piece_idx);
 
       // copying the correct substrings into the nodes
       substring_copy(new_node->piece, str, piece_idx + curr_idx, str_size);
@@ -159,7 +158,7 @@ void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
   child_find = rax_search_child(root->child, str[new_idx]);
   if (child_find == NULL) {
     // create the new node and fill it with its substring
-    new_node = rax_alloc_node(manager, str_size - new_idx);
+    new_node = rax_alloc_node(allocator, str_size - new_idx);
     substring_copy(new_node->piece, str, new_idx, str_size);
     new_node->filter = game;
 
@@ -168,7 +167,7 @@ void rax_insert_aux(memory_arenas_manager_t *manager, rax_t *root,
     return;
   }
 
-  rax_insert_aux(manager, child_find, str, new_idx, str_size, game);
+  rax_insert_aux(allocator, child_find, str, new_idx, str_size, game);
 }
 
 rax_t *rax_insert_child(rax_t *child, rax_t *to_ins) {

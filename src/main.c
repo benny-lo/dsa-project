@@ -6,7 +6,7 @@
 
 #include "constants.h"
 #include "help_constraints.h"
-#include "memory_arena.h"
+#include "memory_allocator.h"
 #include "rax.h"
 #include "utils.h"
 
@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
   if (scanf("%zu", &k) != 1)
     fprintf(stderr, "error taking k\n");
 
-  // initialize empty dictionary and manager
-  memory_arenas_manager_t *manager =
-      init_memory_arenas_manager(MAX(1024 * k, MIN_ARENA_SIZE));
-  rax_t *dict = rax_alloc(manager);
+  // initialize empty dictionary and allocator
+  memory_allocator_t *allocator =
+      init_memory_allocator(MAX(1024 * k, MIN_ARENA_SIZE));
+  rax_t *dict = rax_alloc(allocator);
 
   // initialize the input buffer
   size_t input_size = MAX_KEYWORD;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "error taking input while building dict\n");
   while (input[0] != '+') {
     // insert the word into the dictionary and increment the dictionary size
-    rax_insert(manager, dict, input, k, game);
+    rax_insert(allocator, dict, input, k, game);
     dict_size++;
 
     if (scanf("%s", input) != 1)
@@ -75,12 +75,12 @@ int main(int argc, char *argv[]) {
         if (compatible(input, info)) {
           // if the input is compatible with the constraints, it will be part of
           // the filtered dictionary
-          rax_insert(manager, dict, input, k, 0);
+          rax_insert(allocator, dict, input, k, 0);
           filtered_size++;
         } else {
           // if the input is not compatible with the constraints, it will not be
           // part of the filtered dictionary
-          rax_insert(manager, dict, input, k, game);
+          rax_insert(allocator, dict, input, k, game);
         }
 
         // increment the dictionary size because an element has been inserted in
@@ -136,8 +136,8 @@ int main(int argc, char *argv[]) {
 
   } while (scanf("%s", input) != EOF);
 
-  // deallocate the radix tree and the info struct
-  dealloc_memory_arenas_manager(manager);
+  // deallocate the radix tree (managed by allocator) and the info struct
+  deallocate(allocator);
   help_dealloc(info);
 
   return 0;

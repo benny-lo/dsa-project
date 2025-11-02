@@ -1,7 +1,7 @@
 #ifndef RAX_H
 #define RAX_H
 
-#include "memory_arena.h"
+#include "memory_allocator.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -26,10 +26,10 @@ typedef struct rax_t {
 /*
  * Allocates a new empty radix tree.
  * Parameters:
- * - memory_arenas_manager_t *manager: Pointer to the memory management
+ * - memory_allocator_t *allocator: Pointer to the memory allocator
  * Returns: Pointer to the root of the newly allocated radix tree
  */
-rax_t *rax_alloc(memory_arenas_manager_t *manager);
+rax_t *rax_alloc(memory_allocator_t *allocator);
 
 /*
  * Searches for a string in the radix tree.
@@ -43,13 +43,14 @@ bool rax_search(rax_t const *root, char const *str);
 /*
  * Inserts a string in the radix tree, with a given game filter.
  * Parameters:
+ * - memory_allocator_t *allocator: Pointer to the memory allocator
  * - rax_t *root: Root node of the tree
  * - char const *str: String to insert (null-terminated)
  * - size_t str_size: Size of the string to insert
  * - size_t game: Game index for filtering (zero not to filter out the inserted
  *     string)
  */
-void rax_insert(memory_arenas_manager_t *manager, rax_t *root, char const *str,
+void rax_insert(memory_allocator_t *allocator, rax_t *root, char const *str,
                 size_t str_size, size_t game);
 
 /*
