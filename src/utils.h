@@ -1,8 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "constants.h"
@@ -42,26 +42,27 @@ static inline size_t char_index(char c) {
  * - size_t a: Starting index in the source string
  * - size_t b: Ending index in the source string
  */
-static inline void substring_copy(char *dest, char const *source, size_t a, size_t b) {
+static inline void substring_copy(char *dest, char const *source, size_t a,
+                                  size_t b) {
   strncpy(dest, source + a, b - a);
   dest[b - a] = '\0';
 }
 
-
 /*
- * Generates feedback string based on the reference (hidden to the user) 
+ * Generates feedback string based on the reference (hidden to the user)
  * and guess strings. The rules for generating the feedback are as follows:
  * - feedback[i] = '+' if guess[i] == ref[i]
  * - feedback[i] = '/' if guess[i] does not appear in ref at all
  * - feedback[i] = '|' if guess[i] appears in ref but guess[i] != ref[i];
  *   however, if the number of occurences of guess[i] in ref is n, the number
- *   of occurences of guess[i] in guess that match perfectly with ref is c and 
+ *   of occurences of guess[i] in guess that match perfectly with ref is c and
  *   there are at least n - c occurences of guess[i] in guess before position i
  *   and not matching perfectly with ref, then feedback[i] = '/'.
  * Parameters:
  * - char const *ref: Reference string
  * - char const *guess: Guess string
- * - char *feedback: Output buffer (of size at least k + 1) to store the generated feedback string
+ * - char *feedback: Output buffer (of size at least k + 1) to store the
+ * generated feedback string
  * - size_t k: Length of the strings
  */
 void gen_constraint(char const *ref, char const *guess, char *feedback,

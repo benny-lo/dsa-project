@@ -1,5 +1,5 @@
-#include "constants.h"
 #include "utils.h"
+#include "constants.h"
 
 static const char PERFECT_MATCH = '+';
 static const char PARTIAL_MATCH = '|';
@@ -18,11 +18,12 @@ void gen_constraint(char const *ref, char const *guess, char *feedback,
       feedback[i] = PERFECT_MATCH;
       ref_occur_not_perfect_match[char_index(ref[i])]--;
     } else {
-      feedback[i] = '\0'; // not the actual value, just a filler != PERFECT_MATCH
+      feedback[i] =
+          '\0'; // not the actual value, just a filler != PERFECT_MATCH
     }
   }
 
-  // second loop: takes care of filling feedback with '|' and '/' for 
+  // second loop: takes care of filling feedback with '|' and '/' for
   // mismatched characters between guess and ref
   for (size_t i = 0; i < k; i++) {
     if (feedback[i] == PERFECT_MATCH)
