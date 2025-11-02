@@ -12,7 +12,7 @@ set(SOURCES
     src/rax.c
     src/utils.c
     src/constants.c
-    src/memory_arena.c
+    src/memory_allocator.c
     src/help_constraints.c
 )
 
