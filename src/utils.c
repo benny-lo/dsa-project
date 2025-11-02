@@ -6,7 +6,6 @@
 #include "constants.h"
 #include "utils.h"
 
-
 size_t char_index(char c) {
   int char_index;
 
@@ -28,7 +27,8 @@ size_t char_index(char c) {
   return char_index;
 }
 
-void gen_constraint(char const *ref, char const *guess, char *constraint, size_t k) {
+void gen_constraint(char const *ref, char const *guess, char *constraint,
+                    size_t k) {
   size_t ref_occur_not_perfect_match[ALPHABET_SIZE] = {0};
 
   for (size_t i = 0; i < k; i++) {
@@ -43,7 +43,8 @@ void gen_constraint(char const *ref, char const *guess, char *constraint, size_t
   }
 
   for (size_t i = 0; i < k; i++) {
-    if (constraint[i] != NONE) continue;
+    if (constraint[i] != NONE)
+      continue;
 
     size_t index = char_index(guess[i]);
     if (ref_occur_not_perfect_match[index] != 0) {

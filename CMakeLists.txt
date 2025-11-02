@@ -13,6 +13,7 @@ set(SOURCES
     src/utils.c
     src/constants.c
     src/memory_arena.c
+    src/help_constraints.c
 )
 
 add_executable(debug ${SOURCES})

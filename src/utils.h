@@ -31,6 +31,7 @@ void substring_copy(char *dest, char const *source, size_t a, size_t b);
  * - help_t* info: Pointer to the help_t structure to update
  * - int k: Length of the strings
  */
-void gen_constraint(char const *ref, char const *guess, char *constraint, size_t k);
+void gen_constraint(char const *ref, char const *guess, char *constraint,
+                    size_t k);
 
 #endif

@@ -5,12 +5,12 @@
 #include <string.h>
 
 #include "constants.h"
+#include "help_constraints.h"
+#include "memory_arena.h"
 #include "rax.h"
 #include "utils.h"
-#include "memory_arena.h"
-#include "help_constraints.h"
 
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN_ARENA_SIZE 1024
 
 int main(int argc, char *argv[]) {
@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "error taking k\n");
 
   // initialize empty dictionary and manager
-  memory_arenas_manager_t *manager = init_memory_arenas_manager(MAX(1024 * k, MIN_ARENA_SIZE));
+  memory_arenas_manager_t *manager =
+      init_memory_arenas_manager(MAX(1024 * k, MIN_ARENA_SIZE));
   rax_t *dict = rax_alloc(manager);
 
   // initialize the input buffer
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
   char input[input_size + 1];
 
   // building the radix tree
-  size_t dict_size = 0,game = 0;
+  size_t dict_size = 0, game = 0;
   if (scanf("%s", input) != 1)
     fprintf(stderr, "error taking input while building dict\n");
   while (input[0] != '+') {
