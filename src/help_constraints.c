@@ -11,14 +11,6 @@ typedef struct val_with_flag_t {
 } val_with_flag_t;
 
 /*
- * Actual constraint bookkeeping:
- * for every position, the character forced in that position ('+');
- * for every character, lower bound on the number of occurences in the string
- * ('+' and '|'); for every character, the set of positions where it cannot
- * appear ('|' and '/').
- */
-
-/*
  * Structure to store constraints and filtering information for word matching.
  *
  * counters[i].flag:  If true, counters[i].val is exact else it is a lower bound
@@ -54,46 +46,59 @@ void help_reset(help_t *info, size_t k) {
 
 void help_dealloc(help_t *info) { free(info); }
 
-void help_update(help_t *info, char const *guess, char const *constraint) {
+void help_update(help_t *info, char const *guess, char const *feedback) {
+  // Occurrences per-char of the characters in guess not corresponding to a '/'
   size_t total_notslash[ALPHABET_SIZE] = {0};
+
+  // Running occurrences per-char of the characters in guess not corresponding
+  // to a '/'
   size_t running_notslash[ALPHABET_SIZE] = {0};
 
   // count total non-'/' occurrences per letter
-  for (size_t i = 0; constraint[i] != '\0'; i++) {
-    if (constraint[i] != '/') {
+  for (size_t i = 0; feedback[i] != '\0'; i++) {
+    if (feedback[i] != '/') {
       total_notslash[char_index(guess[i])]++;
     }
   }
 
   // main loop
-  for (size_t i = 0; constraint[i] != '\0'; i++) {
+  for (size_t i = 0; feedback[i] != '\0'; i++) {
     size_t c_index = char_index(guess[i]);
 
-    if (constraint[i] == '+') {
+    if (feedback[i] == PERFECT_MATCH) {
       running_notslash[c_index]++;
 
+      // the only character that can appear at position i is guess[i]
       for (size_t j = 0; j < ALPHABET_SIZE; j++) {
         if (j != c_index) {
           info->can_appear[i * ALPHABET_SIZE + j] = false;
         }
       }
 
+      // if the counter of guess[i] is not exact yet, update its lower bound
       if (!info->counters[c_index].flag &&
           running_notslash[c_index] > info->counters[c_index].val) {
         info->counters[c_index].val = running_notslash[c_index];
       }
-    } else if (constraint[i] == '|') {
-      info->can_appear[i * ALPHABET_SIZE + c_index] = false;
-
+    } else if (feedback[i] == PARTIAL_MATCH) {
       running_notslash[c_index]++;
 
+      // guess[i] cannot appear at position i
+      info->can_appear[i * ALPHABET_SIZE + c_index] = false;
+
+      // if the counter of guess[i] is not exact yet, update its lower bound
       if (!info->counters[c_index].flag &&
           running_notslash[c_index] > info->counters[c_index].val) {
         info->counters[c_index].val = running_notslash[c_index];
       }
-    } else if (constraint[i] == '/') {
+    } else if (feedback[i] == NO_MATCH) {
+      // guess[i] cannot appear at position i
       info->can_appear[i * ALPHABET_SIZE + c_index] = false;
 
+      // set the counter of guess[i] to be exact and equal to
+      // total_notslash[c_index], since having an instance of guess[i] matched
+      // to `NO_MATCH` in feedback means that total_notslash[c_index] is the
+      // exact number of occurrences of guess[i] in the hidden string
       info->counters[c_index].flag = true;
       info->counters[c_index].val = total_notslash[c_index];
     }
@@ -107,12 +112,15 @@ bool compatible(char const *str, help_t const *info) {
     size_t c_index = char_index(str[i]);
     str_occur[c_index]++;
 
+    // guess[i] cannot appear at position i
     if (!info->can_appear[i * ALPHABET_SIZE + c_index])
       return false;
   }
 
   for (size_t i = 0; i < ALPHABET_SIZE; i++) {
     size_t val = info->counters[i].val;
+
+    // wrong number of occurrences of character guess[i] in guess
     if (val > str_occur[i] || (info->counters[i].flag && val < str_occur[i]))
       return false;
   }
@@ -127,6 +135,8 @@ size_t update_filter(rax_t *root, help_t *info, size_t game) {
 
 size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
                          help_t *info, size_t game) {
+  // node and subtree filtered out for this `game` by the previous
+  // sequence of guesses and corresponding feedbacks
   if (root->filter == game)
     return 0;
 
@@ -137,6 +147,7 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
     size_t c_index = char_index(root->piece[piece_idx]);
     str_occur[c_index]++;
 
+    // root->piece[piece_idx] cannot appear at position curr_idx + piece_idx
     if (!info->can_appear[(curr_idx + piece_idx) * ALPHABET_SIZE + c_index]) {
       root->filter = game;
       reset(root->piece, str_occur, piece_idx);
@@ -144,6 +155,7 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
     }
 
     for (size_t i = 0; i < ALPHABET_SIZE; i++) {
+      // too many occurrences of the ith character
       if (info->counters[i].flag && str_occur[i] > info->counters[i].val) {
         root->filter = game;
         reset(root->piece, str_occur, piece_idx);
@@ -155,9 +167,11 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
   tmp = root->child;
   if (tmp == NULL) {
     for (size_t i = 0; i < ALPHABET_SIZE; i++) {
+      // checking if either lower boud or exact of occurrences of the ith
+      // character is not satisfied
       if (str_occur[i] < info->counters[i].val ||
           (info->counters[i].flag && str_occur[i] != info->counters[i].val)) {
-        root->filter = game;
+        root->filter = game; // node and subtree pruned
         reset(root->piece, str_occur, piece_idx);
         return 0;
       }
@@ -167,12 +181,15 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
     reset(root->piece, str_occur, piece_idx);
     return 1;
   } else {
+    // recur on the children
     while (tmp != NULL) {
       ans +=
           update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
       tmp = tmp->sibling;
     }
 
+    // if no compatible strings found in subtree rooted at `root`, prune the
+    // root as well
     if (ans == 0)
       root->filter = game;
 
