@@ -2,7 +2,7 @@
 ## WordChecker
 The goal of this project is to implement **WordChecker** (essentially Wordle) efficiently.
 
-The input begins with an integer `k`, representing the length of all subsequent strings. After that, an arbitrary number of strings is provided — these form the initial dictionary.
+The input begins with an integer `k`, representing the length of all subsequent strings. After that, an arbitrary number of strings is provided, forming the initial dictionary.
 
 For each game (initiated with the `NEW_GAME` command), two inputs are given: a dictionary string `ref` and an integer `n`. These represent, respectively, the target string to be guessed and the number of guesses allowed.
 
@@ -13,7 +13,7 @@ The game continues until it ends with either `ok` (the `ref` string has been cor
   - Otherwise, it returns Wordle-style feedback indicating which characters are:  
     - correctly guessed and in the right position,  
     - present in the word but in a different position, or  
-    - completely incorrect (see `gen_constraint` in [`src/help_constraints.h`](src/help_constraints.h)).
+    - completely incorrect (see `gen_constraint` in [`src/help_constraints.h`](src/utils.h)).
 
 - **`INSERT_START`**, followed by any number of strings of length `k`, and terminated by **`INSERT_END`**.  
   These strings are added to the dictionary and must also be considered in the ongoing game.
@@ -34,7 +34,7 @@ Several options exist such as hash sets or red-black trees, but I chose to use *
 The main advantage of tries is that they provide **search and insertion in `O(k)` time**, which is constant with respect to `n`.  
 In contrast, red-black trees have `O(k log n)` complexity, and hash sets provide `O(k)` amortized time. Moreover, tries maintain strings in lexicographical order (like red-black trees but unlike hash sets).
 
-The primary drawback of tries is their **high memory usage**. While their space complexity is theoretically `O(kn)` — comparable to that of red-black trees and hash sets — the constant factor can be large in naive implementations.  
+The primary drawback of tries is their **high memory usage**. While their space complexity is theoretically `O(kn)` as that of red-black trees and hash sets, the constant factor can be large in naive implementations.  
 The main goal of this section is therefore to explain the optimizations used to reduce trie memory consumption.
 
 ---
@@ -50,7 +50,7 @@ typedef struct trie_t {
 (We do not need a terminal flag since all strings have the same length `k` and we store only complete strings.)
 
 However, this design is highly inefficient:  
-Each node consumes `8 × 64 = 512` bytes, and we need exactly `k + 1` nodes for each string — far too much memory.
+Each node consumes `8 × 64 = 512` bytes, and we need exactly `k + 1` nodes for each string, too much memory!.
 
 ---
 
@@ -65,7 +65,7 @@ typedef struct naive_rax_t {
 } naive_rax_t;
 ```
 
-This optimization reduces the number of nodes required but increases the size of each node (`8 × 64 + 8 = 520` bytes) and complicates insertion and search logic — though their asymptotic complexity remains unchanged.
+This optimization reduces the number of nodes required but increases the size of each node (`8 × 64 + 8 = 520` bytes) and complicates insertion and search logic, though their asymptotic complexity remains unchanged.
 
 ---
 
@@ -80,7 +80,7 @@ typedef struct opt_rax_t {
 } opt_rax_t;
 ```
 
-Now, each node is only `8 × 3 = 24` bytes — a major improvement.  
+Now, each node is only `8 × 3 = 24` bytes, a major improvement from `520` bytes.  
 Although this design slightly complicates insert and search operations, their time complexity remains the same.
 
 ---
@@ -101,7 +101,7 @@ Replacing `char *substr` with `char substr[]` eliminates an extra pointer (savin
 In addition, instead of allocating every node with a separate `malloc`, the implementation uses a **custom memory allocator** that preallocates large chunks of memory.  
 This significantly reduces system calls and fragmentation, improving both speed and memory efficiency.
 
-Finally, the actual implementation of `rax_t` includes an additional field:
+Finally, the actual implementation of [`rax_t`](src/rax.h) includes an additional field:
 ```c
 size_t filter;
 ```
@@ -111,7 +111,7 @@ This field is used to efficiently prune parts of the radix trie that contain str
 ---
 
 ## Filtering Out Strings
-All accumulated constraints from player guesses are captured in a single `help_t` instance:
+All accumulated constraints from player guesses are captured in a single `help_t` instance (defined in ['src/help_constraints.c'](src/help_constraints.c)):
 
 ```c
 typedef struct val_with_flag_t {
