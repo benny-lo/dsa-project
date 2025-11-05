@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     input_size = k;
   char input[input_size + 1];
 
-  // building the radix tree
+  // building the radix trie
   size_t dict_size = 0, game = 0;
   if (scanf("%s", input) != 1)
     fprintf(stderr, "error taking input while building dict\n");
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
   } while (scanf("%s", input) != EOF);
 
-  // deallocate the radix tree (managed by allocator) and the info struct
+  // deallocate the radix trie (managed by allocator) and the info struct
   deallocate(allocator);
   help_dealloc(info);
 

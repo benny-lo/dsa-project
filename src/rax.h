@@ -6,45 +6,45 @@
 #include <stdlib.h>
 
 /*
- * Radix tree node structure.
+ * Radix trie node structure.
  * Members:
- * - size_t filter: Keeps track of the non-ammissible paths down the tree for
+ * - size_t filter: Keeps track of the non-ammissible paths down the trie for
  *     game with index `filter` (game indices are 1-based). Specifically, the
  *     the filtered out paths correspond to the strings that are excluded by
  *     the guess so far of game `filter` and their corresponding feedbacks.
  * - rax_t *sibling: Pointer to the next sibling node
  * - rax_t *child:   Pointer to the first child node
- * - char piece[]:   String substring store in-place (null-terminated)
+ * - char substr[]:   String substring store in-place (null-terminated)
  */
 typedef struct rax_t {
   size_t filter;
   struct rax_t *child;
   struct rax_t *sibling;
-  char piece[];
+  char substr[];
 } rax_t;
 
 /*
- * Allocates a new empty radix tree.
+ * Allocates a new empty radix trie.
  * Parameters:
  * - memory_allocator_t *allocator: Pointer to the memory allocator
- * Returns: Pointer to the root of the newly allocated radix tree
+ * Returns: Pointer to the root of the newly allocated radix trie
  */
 rax_t *rax_alloc(memory_allocator_t *allocator);
 
 /*
- * Searches for a string in the radix tree.
+ * Searches for a string in the radix trie.
  * Parameters:
- * - rax_t *root: Root node of the tree
+ * - rax_t *root: Root node of the trie
  * - char const *str: String to search for (null-terminated)
  * Returns: true if string is found, false otherwise
  */
 bool rax_search(rax_t const *root, char const *str);
 
 /*
- * Inserts a string in the radix tree, with a given game filter.
+ * Inserts a string in the radix trie, with a given game filter.
  * Parameters:
  * - memory_allocator_t *allocator: Pointer to the memory allocator
- * - rax_t *root: Root node of the tree
+ * - rax_t *root: Root node of the trie
  * - char const *str: String to insert (null-terminated)
  * - size_t str_size: Size of the string to insert
  * - size_t game: Game index for filtering (zero not to filter out the inserted
@@ -54,9 +54,9 @@ void rax_insert(memory_allocator_t *allocator, rax_t *root, char const *str,
                 size_t str_size, size_t game);
 
 /*
- * Prints the strings stored in the radix tree.
+ * Prints the strings stored in the radix trie.
  * Parameters:
- * - rax_t* root: Root node of the tree
+ * - rax_t* root: Root node of the trie
  * - char* str: Buffer to store the printed strings (must be large enough)
  * - size_t game: Nodes (and their subtrees) with filter equal to game will be
  *     excluded from the traversal.
@@ -64,12 +64,12 @@ void rax_insert(memory_allocator_t *allocator, rax_t *root, char const *str,
 void rax_print(rax_t const *root, char *str, size_t game);
 
 /*
- * Returns the number of strings stored in the radix tree.
+ * Returns the number of strings stored in the radix trie.
  * Parameters:
- * - rax_t *root: Root node of the tree
+ * - rax_t *root: Root node of the trie
  * - size_t game: Nodes (and their subtrees) with filter equal to game will not
  *     be counted
- * Returns: Number of strings in the tree
+ * Returns: Number of strings in the trie
  */
 size_t rax_size(rax_t const *root, size_t game);
 

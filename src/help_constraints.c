@@ -140,17 +140,17 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
   if (root->filter == game)
     return 0;
 
-  size_t piece_idx, ans = 0;
+  size_t substr_idx, ans = 0;
   rax_t *tmp;
 
-  for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-    size_t c_index = char_index(root->piece[piece_idx]);
+  for (substr_idx = 0; root->substr[substr_idx] != '\0'; substr_idx++) {
+    size_t c_index = char_index(root->substr[substr_idx]);
     str_occur[c_index]++;
 
-    // root->piece[piece_idx] cannot appear at position curr_idx + piece_idx
-    if (!info->can_appear[(curr_idx + piece_idx) * ALPHABET_SIZE + c_index]) {
+    // root->substr[substr_idx] cannot appear at position curr_idx + substr_idx
+    if (!info->can_appear[(curr_idx + substr_idx) * ALPHABET_SIZE + c_index]) {
       root->filter = game;
-      reset(root->piece, str_occur, piece_idx);
+      reset(root->substr, str_occur, substr_idx);
       return 0;
     }
 
@@ -158,7 +158,7 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
       // too many occurrences of the ith character
       if (info->counters[i].flag && str_occur[i] > info->counters[i].val) {
         root->filter = game;
-        reset(root->piece, str_occur, piece_idx);
+        reset(root->substr, str_occur, substr_idx);
         return 0;
       }
     }
@@ -172,19 +172,19 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
       if (str_occur[i] < info->counters[i].val ||
           (info->counters[i].flag && str_occur[i] != info->counters[i].val)) {
         root->filter = game; // node and subtree pruned
-        reset(root->piece, str_occur, piece_idx);
+        reset(root->substr, str_occur, substr_idx);
         return 0;
       }
     }
 
     root->filter = 0;
-    reset(root->piece, str_occur, piece_idx);
+    reset(root->substr, str_occur, substr_idx);
     return 1;
   } else {
     // recur on the children
     while (tmp != NULL) {
       ans +=
-          update_filter_aux(tmp, str_occur, curr_idx + piece_idx, info, game);
+          update_filter_aux(tmp, str_occur, curr_idx + substr_idx, info, game);
       tmp = tmp->sibling;
     }
 
@@ -193,7 +193,7 @@ size_t update_filter_aux(rax_t *root, size_t *str_occur, size_t curr_idx,
     if (ans == 0)
       root->filter = game;
 
-    reset(root->piece, str_occur, piece_idx);
+    reset(root->substr, str_occur, substr_idx);
     return ans;
   }
 }

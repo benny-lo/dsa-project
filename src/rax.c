@@ -11,11 +11,11 @@ static rax_t *rax_alloc_node(memory_allocator_t *allocator, size_t k);
 
 static bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx);
 /*
- * Searches for a node in a list of siblings whose piece starts with the given
+ * Searches for a node in a list of siblings whose substr starts with the given
  * character. Parameters:
  * - rax_t *child: Pointer to the first node, all of its siblings will be
  * considered
- * - char to_find: Character that node->piece[0] has to match
+ * - char to_find: Character that node->substr[0] has to match
  * Returns: Pointer to the found node, or NULL if no such node exists
  */
 static rax_t *rax_search_child(rax_t *child, char to_find);
@@ -70,23 +70,23 @@ rax_t *rax_alloc_node(memory_allocator_t *allocator, size_t k) {
   new_node->filter = 0;
   new_node->sibling = NULL;
   new_node->child = NULL;
-  new_node->piece[k] = '\0';
+  new_node->substr[k] = '\0';
 
   return new_node;
 }
 
 bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx) {
-  size_t piece_idx, new_idx;
+  size_t substr_idx, new_idx;
   rax_t *good_child;
 
-  // if str[curr_idx:curr_idx + len(root->piece)] != root->piece, return false
-  for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-    if (root->piece[piece_idx] != str[curr_idx + piece_idx])
+  // if str[curr_idx:curr_idx + len(root->substr)] != root->substr, return false
+  for (substr_idx = 0; root->substr[substr_idx] != '\0'; substr_idx++) {
+    if (root->substr[substr_idx] != str[curr_idx + substr_idx])
       return false;
   }
 
   // if the string is fully matched, return true
-  new_idx = curr_idx + piece_idx;
+  new_idx = curr_idx + substr_idx;
   if (str[new_idx] == '\0')
     return true;
 
@@ -101,7 +101,7 @@ bool rax_search_aux(rax_t const *root, char const *str, size_t curr_idx) {
 
 rax_t *rax_search_child(rax_t *child, char to_find) {
   while (child != NULL) {
-    if (child->piece[0] == to_find)
+    if (child->substr[0] == to_find)
       return child;
 
     child = child->sibling;
@@ -113,25 +113,25 @@ rax_t *rax_search_child(rax_t *child, char to_find) {
 
 void rax_insert_aux(memory_allocator_t *allocator, rax_t *root, char const *str,
                     size_t curr_idx, size_t str_size, size_t game) {
-  size_t piece_idx, new_idx, old_filter;
+  size_t substr_idx, new_idx, old_filter;
   rax_t *new_node, *new_node_son, *old_child, *child_find;
 
   old_filter = root->filter;
   if (game == 0)
     root->filter = 0;
 
-  size_t piece_size = strlen(root->piece);
+  size_t substr_size = strlen(root->substr);
 
-  for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-    if (root->piece[piece_idx] != str[curr_idx + piece_idx]) {
+  for (substr_idx = 0; root->substr[substr_idx] != '\0'; substr_idx++) {
+    if (root->substr[substr_idx] != str[curr_idx + substr_idx]) {
       // allocating the new nodes
-      new_node = rax_alloc_node(allocator, str_size - piece_idx - curr_idx);
-      new_node_son = rax_alloc_node(allocator, piece_size - piece_idx);
+      new_node = rax_alloc_node(allocator, str_size - substr_idx - curr_idx);
+      new_node_son = rax_alloc_node(allocator, substr_size - substr_idx);
 
       // copying the correct substrings into the nodes
-      substring_copy(new_node->piece, str, piece_idx + curr_idx, str_size);
-      substring_copy(new_node_son->piece, root->piece, piece_idx, piece_size);
-      root->piece[piece_idx] = '\0';
+      substring_copy(new_node->substr, str, substr_idx + curr_idx, str_size);
+      substring_copy(new_node_son->substr, root->substr, substr_idx, substr_size);
+      root->substr[substr_idx] = '\0';
 
       // saving the children of root
       old_child = root->child;
@@ -150,16 +150,16 @@ void rax_insert_aux(memory_allocator_t *allocator, rax_t *root, char const *str,
     }
   }
 
-  new_idx = curr_idx + piece_size;
+  new_idx = curr_idx + substr_size;
 
   if (new_idx == str_size)
-    return; // the string is already present in the tree
+    return; // the string is already present in the trie
 
   child_find = rax_search_child(root->child, str[new_idx]);
   if (child_find == NULL) {
     // create the new node and fill it with its substring
     new_node = rax_alloc_node(allocator, str_size - new_idx);
-    substring_copy(new_node->piece, str, new_idx, str_size);
+    substring_copy(new_node->substr, str, new_idx, str_size);
     new_node->filter = game;
 
     // insert the new node as a child of root
@@ -173,11 +173,11 @@ void rax_insert_aux(memory_allocator_t *allocator, rax_t *root, char const *str,
 rax_t *rax_insert_child(rax_t *child, rax_t *to_ins) {
   if (child == NULL)
     return to_ins;
-  char new_val = to_ins->piece[0];
+  char new_val = to_ins->substr[0];
   rax_t *tmp = child;
 
-  if (new_val > child->piece[0]) {
-    while (tmp->sibling != NULL && new_val > tmp->sibling->piece[0]) {
+  if (new_val > child->substr[0]) {
+    while (tmp->sibling != NULL && new_val > tmp->sibling->substr[0]) {
       tmp = tmp->sibling;
     }
 
@@ -194,13 +194,13 @@ void rax_print_aux(rax_t const *root, char *str, size_t curr_idx, size_t game) {
   if (root->filter == game)
     return;
 
-  size_t piece_idx, new_idx;
+  size_t substr_idx, new_idx;
   rax_t *tmp;
-  for (piece_idx = 0; root->piece[piece_idx] != '\0'; piece_idx++) {
-    str[curr_idx + piece_idx] = root->piece[piece_idx];
+  for (substr_idx = 0; root->substr[substr_idx] != '\0'; substr_idx++) {
+    str[curr_idx + substr_idx] = root->substr[substr_idx];
   }
 
-  new_idx = piece_idx + curr_idx;
+  new_idx = substr_idx + curr_idx;
   tmp = root->child;
 
   if (tmp == NULL) {

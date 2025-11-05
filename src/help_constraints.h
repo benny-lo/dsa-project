@@ -58,15 +58,15 @@ void help_update(help_t *info, char const *guess, char const *feedback);
 bool compatible(char const *str, help_t const *info);
 
 /*
- * Counts the number of strings in the radix tree (the dictionary) that are
+ * Counts the number of strings in the radix trie (the dictionary) that are
  * compatible with the information encapsulated by`info`. Moreover, it updates
- * the filter fields of the nodes corresponding to branches of the radix tree
+ * the filter fields of the nodes corresponding to branches of the radix trie
  * that can be pruned away.
  * Parameters:
- * - rax_t *root: Pointer to the root node of the radix tree
+ * - rax_t *root: Pointer to the root node of the radix trie
  * - help_t *info: Pointer to the help_t structure
  * - int game: Game index
- * Returns: Number of strings in the radix tree compatible with `info`
+ * Returns: Number of strings in the radix trie compatible with `info`
  */
 size_t update_filter(rax_t *root, help_t *info, size_t game);
 
